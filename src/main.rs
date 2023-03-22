@@ -349,6 +349,8 @@ fn snap_to_edges(tile: &Box<dyn Drawable>, edges: &Vec<Edge>, tol: f64) -> (f64,
 
                 result = (dx, dy);
                 curr_l2 = l2;
+
+//                println!("snap_to_edges {}", l2);
             }
 
         }
@@ -365,11 +367,15 @@ fn snaps(edges: &Vec<tile::Edge>, tile: &Box<dyn Drawable>, tol: f64) -> bool {
             if (edge.angle + 180)%360 != de[i].angle {
                 continue;
             }
+            if (edge.length != de[i].length) {
+                continue;
+            }
 
             let dx = edge.center.0 - de[i].center.0;
             let dy = edge.center.1 - de[i].center.1;
             let l2 = dx*dx + dy*dy;
             if (l2 < tol) {
+//                println!("snaps true {}", l2);
                 return true
             }
         }
@@ -485,8 +491,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     let tile_props = DrawProps {
         fill_color1: LEMONCHIFFON,
-        fill_color2: LINEN,
-        edge_color: LAVENDER,
+        fill_color2: WHITESMOKE,
+        edge_color: SIENNA,
         edge_weight: if model.show_edges { 2. } else { 0. },
     };
 
@@ -557,12 +563,14 @@ fn window_event(_app: &App, model: &mut Model, event: WindowEvent) {
                 // Key::Key7 => model.vertex_type = 7,
                 Key::C => { model.tiles = Vec::new(); model.edges = Vec::new(); },
                 Key::E => model.show_edges = !model.show_edges,
-                Key::D => model.next_tile = tile::Tile::UNREFLECTED,
-                Key::K => model.next_tile = tile::Tile::REFLECTED,
+                Key::Up | Key::Down => model.next_tile = match model.next_tile {
+                    tile::Tile::UNREFLECTED => tile::Tile::REFLECTED,
+                    tile::Tile::REFLECTED => tile::Tile::UNREFLECTED,
+                },
                 Key::X => model.debug = !model.debug,
                 Key::U => pop_last_tile(model),
-                Key::Up => { model.scale = 2.*model.scale.min(100.) },
-                Key::Down => { model.scale = 0.5*model.scale.max(1.) },
+                Key::Equals => { model.scale = 2.*model.scale.min(100.) },
+                Key::Minus | Key::Underline => { model.scale = 0.5*model.scale.max(1.) },
                 Key::Left => { model.angle = (model.angle + 30) % 360 },
                 Key::Right => { model.angle = (model.angle + 360 - 30) % 360 },
                 _ => println!("KeyPressed = {:?}", key),

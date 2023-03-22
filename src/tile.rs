@@ -2,8 +2,9 @@ use crate::geom::{Point2, pt2, Vector2, vec2, Polygon};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum EdgeLength {
-    SHORT,
-    LONG
+    SHORT, // 25
+    LONG,  // 43
+    DOUBLE
 }
 
 #[derive(Clone)]
@@ -27,7 +28,7 @@ fn edge_index_to_vertex_tuple(e: i32) -> Result<(usize, usize), i32> {
         10 => Ok(( 9 as usize,10 as usize)),
         11 => Ok((10 as usize,11 as usize)),
         12 => Ok((11 as usize,12 as usize)),
-        13 => Ok((11 as usize, 0 as usize)),
+        13 => Ok((12 as usize, 0 as usize)),
         _ => Err(e),
     }
 }
@@ -147,7 +148,7 @@ impl Unreflected {
             5  => Ok(EdgeLength::LONG),
             6  => Ok(EdgeLength::LONG),
             7  => Ok(EdgeLength::SHORT),
-            8  => Ok(EdgeLength::LONG),
+            8  => Ok(EdgeLength::DOUBLE),
             9  => Ok(EdgeLength::SHORT),
             10 => Ok(EdgeLength::LONG),
             11 => Ok(EdgeLength::LONG),
@@ -307,18 +308,18 @@ impl Reflected {
         let scale64 = scale as f64;
 
         vec![( (pts[2* 0+0]*scale64 + xoff64) as f32, (pts[2* 0+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 1+0]*scale64 + xoff64) as f32, (pts[2* 1+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 2+0]*scale64 + xoff64) as f32, (pts[2* 2+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 3+0]*scale64 + xoff64) as f32, (pts[2* 3+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 4+0]*scale64 + xoff64) as f32, (pts[2* 4+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 5+0]*scale64 + xoff64) as f32, (pts[2* 5+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 6+0]*scale64 + xoff64) as f32, (pts[2* 6+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 7+0]*scale64 + xoff64) as f32, (pts[2* 7+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 8+0]*scale64 + xoff64) as f32, (pts[2* 8+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2* 9+0]*scale64 + xoff64) as f32, (pts[2* 9+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2*10+0]*scale64 + xoff64) as f32, (pts[2*10+1]*scale64 + yoff64) as f32 ),
-             ( (pts[2*11+0]*scale64 + xoff64) as f32, (pts[2*11+1]*scale64 + yoff64) as f32 ),
              ( (pts[2*12+0]*scale64 + xoff64) as f32, (pts[2*12+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2*11+0]*scale64 + xoff64) as f32, (pts[2*11+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2*10+0]*scale64 + xoff64) as f32, (pts[2*10+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 9+0]*scale64 + xoff64) as f32, (pts[2* 9+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 8+0]*scale64 + xoff64) as f32, (pts[2* 8+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 7+0]*scale64 + xoff64) as f32, (pts[2* 7+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 6+0]*scale64 + xoff64) as f32, (pts[2* 6+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 5+0]*scale64 + xoff64) as f32, (pts[2* 5+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 4+0]*scale64 + xoff64) as f32, (pts[2* 4+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 3+0]*scale64 + xoff64) as f32, (pts[2* 3+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 2+0]*scale64 + xoff64) as f32, (pts[2* 2+1]*scale64 + yoff64) as f32 ),
+             ( (pts[2* 1+0]*scale64 + xoff64) as f32, (pts[2* 1+1]*scale64 + yoff64) as f32 ),
 
 
         ]
@@ -326,44 +327,44 @@ impl Reflected {
 
     pub fn edge_angle(&self, e: i32) -> Result<i32, i32> {
         match e {
-            1  => Ok((270 + self.angle)%360),
-            2  => Ok((330 + self.angle)%360),
-            3  => Ok(( 60 + self.angle)%360),
-            4  => Ok((  0 + self.angle)%360),
-            5  => Ok(( 90 + self.angle)%360),
-            6  => Ok(( 30 + self.angle)%360),
-            7  => Ok((120 + self.angle)%360),
-            8  => Ok((180 + self.angle)%360),
-            9  => Ok((240 + self.angle)%360),
-            10 => Ok((150 + self.angle)%360),
-            11 => Ok((210 + self.angle)%360),
-            12 => Ok((300 + self.angle)%360),
-            13 => Ok((  0 + self.angle)%360),
+            1  => Ok((180 + self.angle)%360),
+            2  => Ok((240 + self.angle)%360),
+            3  => Ok((330 + self.angle)%360),
+            4  => Ok(( 30 + self.angle)%360),
+            5  => Ok((300 + self.angle)%360),
+            6  => Ok((360 + self.angle)%360),
+            7  => Ok(( 60 + self.angle)%360),
+            8  => Ok((150 + self.angle)%360),
+            9  => Ok(( 90 + self.angle)%360),
+            10 => Ok((180 + self.angle)%360),
+            11 => Ok((120 + self.angle)%360),
+            12 => Ok((210 + self.angle)%360),
+            13 => Ok((270 + self.angle)%360),
             _ => Err(e),
         }
     }
 
     pub fn edge_length(&self, e: i32) -> Result<EdgeLength, i32> {
         match e {
-            1  => Ok(EdgeLength::LONG),
-            2  => Ok(EdgeLength::LONG),
-            3  => Ok(EdgeLength::SHORT),
-            4  => Ok(EdgeLength::SHORT),
-            5  => Ok(EdgeLength::LONG),
-            6  => Ok(EdgeLength::LONG),
+            1  => Ok(EdgeLength::SHORT),
+            2  => Ok(EdgeLength::SHORT),
+            3  => Ok(EdgeLength::LONG),
+            4  => Ok(EdgeLength::LONG),
+            5  => Ok(EdgeLength::SHORT),
+            6  => Ok(EdgeLength::DOUBLE),
             7  => Ok(EdgeLength::SHORT),
             8  => Ok(EdgeLength::LONG),
-            9  => Ok(EdgeLength::SHORT),
-            10 => Ok(EdgeLength::LONG),
-            11 => Ok(EdgeLength::LONG),
-            12 => Ok(EdgeLength::SHORT),
-            13 => Ok(EdgeLength::SHORT),
+            9  => Ok(EdgeLength::LONG),
+            10 => Ok(EdgeLength::SHORT),
+            11 => Ok(EdgeLength::SHORT),
+            12 => Ok(EdgeLength::LONG),
+            13 => Ok(EdgeLength::LONG),
             _ => Err(e),
         }
     }
 
     pub fn edge_center(&self, e: i32) -> Result<(f64, f64), i32> {
-        let (i1, i2) = edge_index_to_vertex_tuple(e)?;
+        let (i1, i2) = edge_index_to_vertex_tuple(14 - e)?;
         let pts = self.geometry();
         let x1 = pts[2*i1+0];
         let y1 = pts[2*i1+1];
@@ -373,7 +374,7 @@ impl Reflected {
     }
 
     pub fn edge_points(&self, e: i32) -> Result<((f64, f64), (f64, f64)), i32> {
-        let (i1, i2) = edge_index_to_vertex_tuple(e)?;
+        let (i1, i2) = edge_index_to_vertex_tuple(14 - e)?;
         let pts = self.geometry();
         let x1 = pts[2*i1+0];
         let y1 = pts[2*i1+1];
