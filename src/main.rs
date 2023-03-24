@@ -18,7 +18,6 @@ trait Drawable {
     fn draw(&self, draw: &nannou::draw::Draw, xoff: f32, yoff: f32, scale: f32, props: &DrawProps);
     fn append_to_vector(&self, dst: &mut Vec<Box<dyn Drawable>>, dx: f64, dy: f64);
     fn get_drawable_edges(&self) -> Vec<Edge>;
-    fn get_ammann_bars(&self, xoff: f32, yoff: f32, scale: f32) -> Vec<(f32,f32)>;
 }
 
 fn interpolate(p1: (f32,f32), p2: (f32,f32), t: f64) -> (f32,f32) {
@@ -54,28 +53,6 @@ impl Drawable for Unreflected {
     fn get_drawable_edges(&self) -> Vec<Edge> {
         self.get_edges()
     }
-
-    fn get_ammann_bars(&self, xoff: f32, yoff: f32, scale: f32) -> Vec<(f32,f32)> {
-        let s5 = 5_f64.sqrt();
-        let t1 = 1. / 4.;
-        let t2 = 1. / (3. + s5);
-        let t3 = (1. + s5) / 4.;
-
-        let p = self.polygon(xoff, yoff, scale);
-        let a0 = interpolate(p[1], p[0], t3);
-        let a1 = interpolate(p[1], p[0], t1);
-        let a2 = interpolate(p[1], p[2], t2);
-        let a3 = interpolate(p[3], p[2], t2);
-        let a4 = interpolate(p[3], p[0], t1);
-        let a5 = interpolate(p[3], p[0], t3);
-
-        let mut result = Vec::new();
-        result.push(a1); result.push(a2);
-        result.push(a2); result.push(a0);
-        result.push(a5); result.push(a3);
-        result.push(a3); result.push(a4);
-        return result
-    }
 }
 
 impl Drawable for Reflected {
@@ -105,25 +82,6 @@ impl Drawable for Reflected {
     fn get_drawable_edges(&self) -> Vec<Edge> {
         self.get_edges()
     }
-
-    fn get_ammann_bars(&self, xoff: f32, yoff: f32, scale: f32) -> Vec<(f32,f32)> {
-        let s5 = 5_f64.sqrt();
-        let t1 = 1. / 4.;
-        let t2 = 1. / (3. + s5);
-
-        let p = self.polygon(xoff, yoff, scale);
-        let r0 = interpolate(p[0], p[1], t2);
-        let r3 = interpolate(p[2], p[1], t1);
-        let r4 = interpolate(p[2], p[3], t1);
-        let r7 = interpolate(p[0], p[3], t2);
-
-        let mut result = Vec::new();
-        result.push(r3); result.push(r7);
-        result.push(r7); result.push(r0);
-        result.push(r0); result.push(r4);
-
-        return result
-    }
 }
 
 fn build_tile(tile: &tile::Tile, x: f64, y: f64, angle: i32) -> Result<Box<dyn Drawable>, i32> {
@@ -149,124 +107,6 @@ fn interp_angles(start_angle: i32, end_angle: i32) -> Vec<f64> {
     }
     return result
 }
-
-// fn build_vertex1(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let phi = (1. + 5_f64.sqrt())/2.;
-//     let d1 = Dart::new(x - phi, y, angle);
-//     let d2 = place_dart_edge(3, d1.edge_center(2)?, d1.edge_angle(2)?);
-//     let d3 = place_dart_edge(3, d2.edge_center(2)?, d2.edge_angle(2)?);
-//     let d4 = place_dart_edge(3, d3.edge_center(2)?, d3.edge_angle(2)?);
-//     let d5 = place_dart_edge(3, d4.edge_center(2)?, d4.edge_angle(2)?);
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(d2));
-//     tiles.push(Box::new(d3));
-//     tiles.push(Box::new(d4));
-//     tiles.push(Box::new(d5));
-//     Ok(tiles)
-// }
-
-// fn build_vertex2(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let d1 = Dart::new(x, y, angle);
-//     let k1 = place_kite_edge(2, d1.edge_center(4)?, d1.edge_angle(4)?);
-//     let k2 = place_kite_edge(4, k1.edge_center(1)?, k1.edge_angle(1)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(k2));
-//     Ok(tiles)
-// }
-
-// fn build_vertex3(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let phi = (1. + 5_f64.sqrt())/2.;
-
-//     let k1 = Kite::new(x + phi, y, angle);
-//     let k2 = place_kite_edge(1, k1.edge_center(4)?, k1.edge_angle(4)?);
-//     let k3 = place_kite_edge(1, k2.edge_center(4)?, k2.edge_angle(4)?);
-//     let k4 = place_kite_edge(1, k3.edge_center(4)?, k3.edge_angle(4)?);
-//     let k5 = place_kite_edge(1, k4.edge_center(4)?, k4.edge_angle(4)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(k2));
-//     tiles.push(Box::new(k3));
-//     tiles.push(Box::new(k4));
-//     tiles.push(Box::new(k5));
-//     Ok(tiles)
-// }
-
-// fn build_vertex4(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let phi = (1. + 5_f64.sqrt())/2.;
-
-//     let d1 = Dart::new(x - phi, y, angle);
-//     let d2 = place_dart_edge(3, d1.edge_center(2)?, d1.edge_angle(2)?);
-//     let k1 = place_kite_edge(1, d2.edge_center(2)?, d2.edge_angle(2)?);
-//     let k2 = place_kite_edge(1, k1.edge_center(4)?, k1.edge_angle(4)?);
-//     let d3 = place_dart_edge(3, k2.edge_center(4)?, k2.edge_angle(4)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(d2));
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(k2));
-//     tiles.push(Box::new(d3));
-//     Ok(tiles)
-// }
-
-// fn build_vertex5(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-
-//     let k1 = Kite::new(x - 1., y, angle);
-//     let d1 = place_dart_edge(4, k1.edge_center(2)?, k1.edge_angle(2)?);
-//     let k2 = place_kite_edge(1, d1.edge_center(3)?, d1.edge_angle(3)?);
-//     let k3 = place_kite_edge(1, k2.edge_center(4)?, k2.edge_angle(4)?);
-//     let d2 = place_dart_edge(2, k3.edge_center(4)?, k3.edge_angle(4)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(k2));
-//     tiles.push(Box::new(k3));
-//     tiles.push(Box::new(d2));
-//     Ok(tiles)
-// }
-
-// fn build_vertex6(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let phi = (1. + 5_f64.sqrt())/2.;
-
-//     let d1 = Dart::new(x - phi, y, angle);
-//     let k1 = place_kite_edge(4, d1.edge_center(2)?, d1.edge_angle(2)?);
-//     let k2 = place_kite_edge(2, k1.edge_center(3)?, k1.edge_angle(3)?);
-//     let k3 = place_kite_edge(4, k2.edge_center(1)?, k2.edge_angle(1)?);
-//     let k4 = place_kite_edge(2, k3.edge_center(3)?, k3.edge_angle(3)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(k2));
-//     tiles.push(Box::new(k3));
-//     tiles.push(Box::new(k4));
-//     Ok(tiles)
-// }
-
-// fn build_vertex7(x: f64, y: f64, angle: i32) -> Result<Vec<Box<dyn Drawable>>, i32> {
-//     let s5 = 5_f64.sqrt();
-//     let phi = (1.+s5)/2.;
-//     let k = (2.+s5) / (1.+s5);
-//     let p = (10. + 20_f64.sqrt()).sqrt()/4.;
-
-//     let k1 = Kite::new(x + k - 1., y - p, angle);
-//     let k2 = place_kite_edge(3, k1.edge_center(2)?, k1.edge_angle(2)?);
-//     let d1 = place_dart_edge(4, k2.edge_center(2)?, k2.edge_angle(2)?);
-//     let d2 = place_dart_edge(2, d1.edge_center(3)?, d1.edge_angle(3)?);
-
-//     let mut tiles: Vec<Box<dyn Drawable>> = Vec::new();
-//     tiles.push(Box::new(k1));
-//     tiles.push(Box::new(k2));
-//     tiles.push(Box::new(d1));
-//     tiles.push(Box::new(d2));
-//     Ok(tiles)
-// }
 
 fn main() {
     nannou::app(model)
@@ -339,18 +179,16 @@ fn snap_to_edges(tile: &Box<dyn Drawable>, edges: &Vec<Edge>, tol: f64) -> (f64,
             let dx = e.center.0 - e1[i].center.0;
             let dy = e.center.1 - e1[i].center.1;
             let l2 = dx*dx + dy*dy;
-            if (l2 < curr_l2) {
-                if ((e1[i].angle + 180) % 360 != e.angle) {
+            if l2 < curr_l2 {
+                if (e1[i].angle + 180) % 360 != e.angle {
                     continue;
                 }
-                if (e1[i].length != e.length) {
+                if e1[i].length != e.length {
                     continue;
                 }
 
                 result = (dx, dy);
                 curr_l2 = l2;
-
-//                println!("snap_to_edges {}", l2);
             }
 
         }
@@ -367,15 +205,14 @@ fn snaps(edges: &Vec<tile::Edge>, tile: &Box<dyn Drawable>, tol: f64) -> bool {
             if (edge.angle + 180)%360 != de[i].angle {
                 continue;
             }
-            if (edge.length != de[i].length) {
+            if edge.length != de[i].length {
                 continue;
             }
 
             let dx = edge.center.0 - de[i].center.0;
             let dy = edge.center.1 - de[i].center.1;
             let l2 = dx*dx + dy*dy;
-            if (l2 < tol) {
-//                println!("snaps true {}", l2);
+            if l2 < tol {
                 return true
             }
         }
@@ -383,6 +220,7 @@ fn snaps(edges: &Vec<tile::Edge>, tile: &Box<dyn Drawable>, tol: f64) -> bool {
     return false
 }
 
+// @todo Handle SHORT matching half a DOUBLE
 fn match_edges(t1: &Box<dyn Drawable>, t2: &Box<dyn Drawable>, skip: [bool; 13]) -> [bool; 13] {
     let mut result = skip;
     let e1 = t1.get_drawable_edges();
@@ -395,13 +233,13 @@ fn match_edges(t1: &Box<dyn Drawable>, t2: &Box<dyn Drawable>, skip: [bool; 13])
             let dx = e2[j].center.0 - e1[i].center.0;
             let dy = e2[j].center.1 - e1[i].center.1;
             let l2 = dx*dx + dy*dy;
-            if (l2 > 0.1) {
+            if l2 > 0.1 {
                 continue;
             }
 
             let a1 = (e1[i].angle + 180) % 360;
             let a2 = e2[j].angle;
-            if (a1 != a2) {
+            if a1 != a2 {
                 continue;
             }
             result[i] = true;
@@ -428,7 +266,7 @@ fn add_tile(model: &mut Model, tile: Box<dyn Drawable>) {
 
         let e = t1.get_drawable_edges();
         for i in 0..13 {
-            if (!matches[i]) {
+            if !matches[i] {
                 new_edges.push(Edge {center: (e[i].center.0, e[i].center.1),
                                      angle: e[i].angle,
                                      length: e[i].length } );
@@ -455,7 +293,7 @@ fn pop_last_tile(model: &mut Model) {
 
         let e = t1.get_drawable_edges();
         for i in 0..13 {
-            if (!matches[i]) {
+            if !matches[i] {
                 new_edges.push(Edge {center: (e[i].center.0, e[i].center.1),
                                      angle: e[i].angle,
                                      length: e[i].length } );
@@ -516,7 +354,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     }
 
     // DEBUGGING: Draw the edges
-    if (model.debug) {
+    if model.debug {
         for e in &model.edges {
             let angle_in_radians = e.angle as f64 * std::f64::consts::PI / 180.0f64;
             let r = (model.scale as f64) * (if e.length == EdgeLength::SHORT { 1.0f64 } else { 1.6f64 });

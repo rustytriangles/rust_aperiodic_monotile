@@ -2,9 +2,9 @@ use crate::geom::{Point2, pt2, Vector2, vec2, Polygon};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum EdgeLength {
-    SHORT, // 25
-    LONG,  // 43
-    DOUBLE
+    SHORT,
+    LONG,
+    DOUBLE // 2 x SHORT
 }
 
 #[derive(Clone)]
@@ -38,31 +38,18 @@ fn tile_geom() -> [[f64; 2]; 13] {
     let r = s3 / 2.;
 
     [
-        // 0: (1/2, 0)
         [0.5, 0.],
-        // 1: (1/2, R)
         [0.5, r],
-        // 2: (-1/4, 3*R/2)
         [-0.25, 3.*r/2.],
-        // 3: (-1/2, R)
         [-0.5,r],
-        // 4: (-1, R)
         [-1.,r],
-        // 5: (-1, 0)
         [-1.,0.],
-        // 6: (-5/4, -R/2)
         [-1.75,-r/2.],
-        // 7: (-3/2, -R)
         [-1.5,-r],
-        // 8: (-1/2, -R)
         [-0.5,-r],
-        // 9: (-1/4, -R/2)
         [-0.25,-r/2.],
-        // 10: (1/2, -R)
         [0.5,-r],
-        // 11: (5/4, -R/2)
         [1.25,-r/2.],
-        // 12: (1,0)
         [1.,0.],
     ]
 }
@@ -121,39 +108,30 @@ impl Unreflected {
     }
 
     pub fn edge_angle(&self, e: i32) -> Result<i32, i32> {
+        const EA: &'static [i32] = &[90, 150, 240, 180, 270, 210, 300, 0, 60, 330, 30, 120, 180];
+
         match e {
-            1  => Ok(( 90 + self.angle)%360),
-            2  => Ok((150 + self.angle)%360),
-            3  => Ok((240 + self.angle)%360),
-            4  => Ok((180 + self.angle)%360),
-            5  => Ok((270 + self.angle)%360),
-            6  => Ok((210 + self.angle)%360),
-            7  => Ok((300 + self.angle)%360),
-            8  => Ok((  0 + self.angle)%360),
-            9  => Ok(( 60 + self.angle)%360),
-            10 => Ok((330 + self.angle)%360),
-            11 => Ok(( 30 + self.angle)%360),
-            12 => Ok((120 + self.angle)%360),
-            13 => Ok((180 + self.angle)%360),
+            1..=13 => Ok((EA[(e-1) as usize] + self.angle)%360),
             _ => Err(e),
         }
     }
 
     pub fn edge_length(&self, e: i32) -> Result<EdgeLength, i32> {
+        const EL: &'static [EdgeLength] = &[EdgeLength::LONG,
+                                            EdgeLength::LONG,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::LONG,
+                                            EdgeLength::LONG,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::DOUBLE,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::LONG,
+                                            EdgeLength::LONG,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::SHORT];
         match e {
-            1  => Ok(EdgeLength::LONG),
-            2  => Ok(EdgeLength::LONG),
-            3  => Ok(EdgeLength::SHORT),
-            4  => Ok(EdgeLength::SHORT),
-            5  => Ok(EdgeLength::LONG),
-            6  => Ok(EdgeLength::LONG),
-            7  => Ok(EdgeLength::SHORT),
-            8  => Ok(EdgeLength::DOUBLE),
-            9  => Ok(EdgeLength::SHORT),
-            10 => Ok(EdgeLength::LONG),
-            11 => Ok(EdgeLength::LONG),
-            12 => Ok(EdgeLength::SHORT),
-            13 => Ok(EdgeLength::SHORT),
+            1..=13 => Ok(EL[(e-1) as usize]),
             _ => Err(e),
         }
     }
@@ -182,8 +160,8 @@ impl Unreflected {
         let angle_in_radians = self.angle as f64 * std::f64::consts::PI / 180.;
         let c = angle_in_radians.cos();
         let s = angle_in_radians.sin();
-        let s3 = 3_f64.sqrt();
-        let r = s3 / 2.;
+//        let s3 = 3_f64.sqrt();
+//        let r = s3 / 2.;
 
         let mut boxed_arr = Box::new([0.; 26]);
         let tg = tile_geom();
@@ -326,39 +304,30 @@ impl Reflected {
     }
 
     pub fn edge_angle(&self, e: i32) -> Result<i32, i32> {
+        const EA: &'static [i32] = &[180, 240, 330, 30, 300, 360, 60, 150, 90, 180, 120, 210, 270];
+
         match e {
-            1  => Ok((180 + self.angle)%360),
-            2  => Ok((240 + self.angle)%360),
-            3  => Ok((330 + self.angle)%360),
-            4  => Ok(( 30 + self.angle)%360),
-            5  => Ok((300 + self.angle)%360),
-            6  => Ok((360 + self.angle)%360),
-            7  => Ok(( 60 + self.angle)%360),
-            8  => Ok((150 + self.angle)%360),
-            9  => Ok(( 90 + self.angle)%360),
-            10 => Ok((180 + self.angle)%360),
-            11 => Ok((120 + self.angle)%360),
-            12 => Ok((210 + self.angle)%360),
-            13 => Ok((270 + self.angle)%360),
+            1..=13 => Ok((EA[(e-1) as usize] + self.angle)%360),
             _ => Err(e),
         }
     }
 
     pub fn edge_length(&self, e: i32) -> Result<EdgeLength, i32> {
+        const EL: &'static [EdgeLength] = &[EdgeLength::SHORT,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::LONG,
+                                            EdgeLength::LONG,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::DOUBLE,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::LONG,
+                                            EdgeLength::LONG,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::SHORT,
+                                            EdgeLength::LONG,
+                                            EdgeLength::LONG];
         match e {
-            1  => Ok(EdgeLength::SHORT),
-            2  => Ok(EdgeLength::SHORT),
-            3  => Ok(EdgeLength::LONG),
-            4  => Ok(EdgeLength::LONG),
-            5  => Ok(EdgeLength::SHORT),
-            6  => Ok(EdgeLength::DOUBLE),
-            7  => Ok(EdgeLength::SHORT),
-            8  => Ok(EdgeLength::LONG),
-            9  => Ok(EdgeLength::LONG),
-            10 => Ok(EdgeLength::SHORT),
-            11 => Ok(EdgeLength::SHORT),
-            12 => Ok(EdgeLength::LONG),
-            13 => Ok(EdgeLength::LONG),
+            1..=13 => Ok(EL[(e-1) as usize]),
             _ => Err(e),
         }
     }
@@ -387,11 +356,8 @@ impl Reflected {
         let angle_in_radians = self.angle as f64 * std::f64::consts::PI / 180.;
         let c = angle_in_radians.cos();
         let s = angle_in_radians.sin();
-//        let s5 = 5_f64.sqrt();
-//        let phi = (1.+s5)/2.;
-//        let h = (5.+2.*s5).sqrt()/2.;
-        let s3 = 3_f64.sqrt();
-        let r = s3 / 2.;
+//        let s3 = 3_f64.sqrt();
+//        let r = s3 / 2.;
 
         let mut boxed_arr = Box::new([0.; 26]);
         let tg = tile_geom();
